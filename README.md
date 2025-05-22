@@ -90,6 +90,36 @@ Be sure you are logged in to Azure CLI with `az login` then add the following:
 }
 ```
 
+### Docker Setup
+
+For running the MCP server in a Docker container, see the [Docker Setup Guide](docs/docker-setup.md).
+
+You can quickly run the server with Docker Compose:
+
+```bash
+# Create a .env file with your credentials
+docker-compose up
+```
+
+Or configure your Claude/Cursor AI to use the Docker container:
+
+```json
+{
+  "mcpServers": {
+    "azureDevOps": {
+      "command": "docker",
+      "args": ["run", "--rm", "-i", "azure-devops-mcp"],
+      "env": {
+        "AZURE_DEVOPS_ORG_URL": "https://dev.azure.com/your-organization",
+        "AZURE_DEVOPS_AUTH_METHOD": "pat",
+        "AZURE_DEVOPS_PAT": "<YOUR_PAT>",
+        "AZURE_DEVOPS_DEFAULT_PROJECT": "your-project-name"
+      }
+    }
+  }
+}
+```
+
 For detailed configuration instructions and more authentication options, see the [Authentication Guide](docs/authentication.md).
 
 ## Authentication Methods

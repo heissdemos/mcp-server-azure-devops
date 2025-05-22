@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  azure-devops-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: azure-devops-mcp
+    environment:
+      - AZURE_DEVOPS_ORG_URL=${AZURE_DEVOPS_ORG_URL:-}
+      - AZURE_DEVOPS_AUTH_METHOD=${AZURE_DEVOPS_AUTH_METHOD:-azure-identity}
+      - AZURE_DEVOPS_PAT=${AZURE_DEVOPS_PAT:-}
+      - AZURE_DEVOPS_DEFAULT_PROJECT=${AZURE_DEVOPS_DEFAULT_PROJECT:-}
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID:-}
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID:-}
+      - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET:-}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      # Für Azure CLI auth: mounten wir die Azure CLI-Konfiguration
+      - ${HOME}/.azure:/root/.azure:ro
+    restart: unless-stopped
+    # Für interaktive Nutzung mit Claude MCP
+    stdin_open: true
+    tty: true

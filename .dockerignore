@@ -1,0 +1,26 @@
+# Verzeichnisse
+node_modules
+dist
+coverage
+.git
+.github
+
+# Dateien
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Umgebungsdateien
+.env
+.env.local
+.env.*
+
+# IDE-Dateien
+.idea
+.vscode
+*.swp
+*.swo
+
+# Temporäre Dateien
+.DS_Store
+Thumbs.db
