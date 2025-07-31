@@ -25,26 +25,49 @@ export async function getMe(connection: WebApi): Promise<UserProfile> {
     // Get the authorization header
     const authHeader = await getAuthorizationHeader();
 
-    // Make direct call to the Profile API endpoint
-    // Note: This API is in the vssps.dev.azure.com domain, not dev.azure.com
-    const response = await axios.get(
-      `https://vssps.dev.azure.com/${organization}/_apis/profile/profiles/me?api-version=7.1`,
-      {
-        headers: {
-          Authorization: authHeader,
-          'Content-Type': 'application/json',
-        },
+    // Determine the correct API URL based on server type
+    let apiUrl: string;
+    if (
+      connection.serverUrl.includes('dev.azure.com') ||
+      connection.serverUrl.includes('visualstudio.com')
+    ) {
+      // Cloud Azure DevOps - use vssps.dev.azure.com
+      apiUrl = `https://vssps.dev.azure.com/${organization}/_apis/profile/profiles/me?api-version=7.1`;
+    } else {
+      // On-premise Azure DevOps Server - use connectionData API instead of profile API
+      apiUrl = `${connection.serverUrl}/_apis/connectionData?api-version=5.0-preview`;
+    }
+
+    // Make direct call to the appropriate API endpoint
+    const response = await axios.get(apiUrl, {
+      headers: {
+        Authorization: authHeader,
+        'Content-Type': 'application/json',
       },
-    );
+    });
 
     const profile = response.data;
 
-    // Return the user profile with required fields
-    return {
-      id: profile.id,
-      displayName: profile.displayName || '',
-      email: profile.emailAddress || '',
-    };
+    // Parse response based on API type
+    if (
+      connection.serverUrl.includes('dev.azure.com') ||
+      connection.serverUrl.includes('visualstudio.com')
+    ) {
+      // Cloud Azure DevOps - profile API response
+      return {
+        id: profile.id,
+        displayName: profile.displayName || '',
+        email: profile.emailAddress || '',
+      };
+    } else {
+      // On-premise Azure DevOps Server - connectionData API response
+      const user = profile.authenticatedUser;
+      return {
+        id: user.id,
+        displayName: user.providerDisplayName || '',
+        email: user.properties?.Account?.$value || '',
+      };
+    }
   } catch (error) {
     // Handle authentication errors
     if (
@@ -81,6 +104,17 @@ function extractOrgFromUrl(url: string): { organization: string } {
   // If not found, try legacy visualstudio.com format
   if (!match) {
     match = url.match(/https?:\/\/([^.]+)\.visualstudio\.com/);
+  }
+
+  // If still not found, try on-premise format (extract from collection path)
+  if (!match) {
+    // For on-premise servers like https://server.company.com/DefaultCollection
+    // We'll use a generic organization name since on-premise doesn't have orgs
+    const onPremiseMatch = url.match(/https?:\/\/[^/]+\/([^/]+)/);
+    if (onPremiseMatch) {
+      // Use the collection name as organization for on-premise
+      return { organization: onPremiseMatch[1] };
+    }
   }
 
   const organization = match ? match[1] : '';
