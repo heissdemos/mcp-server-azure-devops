@@ -1,7 +1,14 @@
 import { GitPullRequest } from 'azure-devops-node-api/interfaces/GitInterfaces';
+import { WebApi } from 'azure-devops-node-api';
+import {
+  WorkItemRelation,
+  WorkItemExpand,
+} from 'azure-devops-node-api/interfaces/WorkItemTrackingInterfaces';
 import { AzureDevOpsClient } from '../../../shared/auth/client-factory';
 import { AzureDevOpsError } from '../../../shared/errors';
 import { UpdatePullRequestOptions } from '../types';
+import { AuthenticationMethod } from '../../../shared/auth/auth-factory';
+import { pullRequestStatusMapper } from '../../../shared/enums';
 
 /**
  * Updates an existing pull request in Azure DevOps with the specified changes.
@@ -30,7 +37,8 @@ export const updatePullRequest = async (
   try {
     // Get connection to Azure DevOps
     const client = new AzureDevOpsClient({
-      method: (process.env.AZURE_DEVOPS_AUTH_METHOD as any) ?? 'pat',
+      method:
+        (process.env.AZURE_DEVOPS_AUTH_METHOD as AuthenticationMethod) ?? 'pat',
       organizationUrl: process.env.AZURE_DEVOPS_ORG_URL ?? '',
       personalAccessToken: process.env.AZURE_DEVOPS_PAT,
     });
@@ -70,20 +78,13 @@ export const updatePullRequest = async (
     }
 
     if (status) {
-      switch (status) {
-        case 'active':
-          updateObject.status = 1; // GitPullRequestStatus.Active
-          break;
-        case 'abandoned':
-          updateObject.status = 2; // GitPullRequestStatus.Abandoned
-          break;
-        case 'completed':
-          updateObject.status = 3; // GitPullRequestStatus.Completed
-          break;
-        default:
-          throw new AzureDevOpsError(
-            `Invalid status: ${status}. Valid values are: active, abandoned, completed`,
-          );
+      const enumStatus = pullRequestStatusMapper.toEnum(status);
+      if (enumStatus !== undefined) {
+        updateObject.status = enumStatus;
+      } else {
+        throw new AzureDevOpsError(
+          `Invalid status: ${status}. Valid values are: active, abandoned, completed`,
+        );
       }
     }
 
@@ -141,7 +142,7 @@ export const updatePullRequest = async (
  * Handle adding or removing work items from a pull request
  */
 interface WorkItemHandlingOptions {
-  connection: any;
+  connection: WebApi;
   pullRequestId: number;
   repositoryId: string;
   projectId?: string;
@@ -204,13 +205,13 @@ async function handleWorkItems(
             workItemId,
             undefined, // fields
             undefined, // asOf
-            4, // 4 = WorkItemExpand.Relations
+            WorkItemExpand.Relations,
           );
 
           if (workItem.relations) {
             // Find the relationship to the pull request using the artifactId
             const prRelationIndex = workItem.relations.findIndex(
-              (rel: any) =>
+              (rel: WorkItemRelation) =>
                 rel.rel === 'ArtifactLink' &&
                 rel.attributes &&
                 rel.attributes.name === 'Pull Request' &&
@@ -251,7 +252,7 @@ async function handleWorkItems(
  * Handle adding or removing reviewers from a pull request
  */
 interface ReviewerHandlingOptions {
-  connection: any;
+  connection: WebApi;
   pullRequestId: number;
   repositoryId: string;
   projectId?: string;

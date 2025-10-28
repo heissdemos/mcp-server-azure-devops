@@ -106,15 +106,9 @@ function extractOrgFromUrl(url: string): { organization: string } {
     match = url.match(/https?:\/\/([^.]+)\.visualstudio\.com/);
   }
 
-  // If still not found, try on-premise format (extract from collection path)
+  // Fallback: capture the first path segment for any URL
   if (!match) {
-    // For on-premise servers like https://server.company.com/DefaultCollection
-    // We'll use a generic organization name since on-premise doesn't have orgs
-    const onPremiseMatch = url.match(/https?:\/\/[^/]+\/([^/]+)/);
-    if (onPremiseMatch) {
-      // Use the collection name as organization for on-premise
-      return { organization: onPremiseMatch[1] };
-    }
+    match = url.match(/https?:\/\/[^/]+\/([^/]+)/);
   }
 
   const organization = match ? match[1] : '';

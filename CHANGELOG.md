@@ -2,6 +2,53 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.1.42](https://github.com/Tiberriver256/mcp-server-azure-devops/compare/mcp-server-azure-devops-v0.1.41...mcp-server-azure-devops-v0.1.42) (2025-07-15)
+
+
+### Features
+
+* implement human-readable string enums for Azure DevOps API responses ([8168bcb](https://github.com/Tiberriver256/mcp-server-azure-devops/commit/8168bcbe8e4957e9632927f57ecbe9632c911735))
+
+## [0.1.41](https://github.com/Tiberriver256/mcp-server-azure-devops/compare/mcp-server-azure-devops-v0.1.40...mcp-server-azure-devops-v0.1.41) (2025-07-14)
+
+
+### Features
+
+* **pull-requests:** enhance get_pull_request_comments response with … ([#229](https://github.com/Tiberriver256/mcp-server-azure-devops/issues/229)) ([6997a04](https://github.com/Tiberriver256/mcp-server-azure-devops/commit/6997a04e92b4fe453354b8fd9f0f25c974fcad2b))
+
+
+### Bug Fixes
+
+* **work-items:** make expand enum compatible with Gemini CLI ([#240](https://github.com/Tiberriver256/mcp-server-azure-devops/issues/240)) ([ac1dcac](https://github.com/Tiberriver256/mcp-server-azure-devops/commit/ac1dcace4cd6f63d5decd4820307b52a4d0d431d))
+
+## [0.1.40](https://github.com/Tiberriver256/mcp-server-azure-devops/compare/mcp-server-azure-devops-v0.1.39...mcp-server-azure-devops-v0.1.40) (2025-06-20)
+
+
+### Bug Fixes
+
+* simplify listWikiPages API by removing unused parameters ([fff7238](https://github.com/Tiberriver256/mcp-server-azure-devops/commit/fff72384f69433942ee8439de0dda90d7fc85c38))
+
+## [0.1.39](https://github.com/Tiberriver256/mcp-server-azure-devops/compare/mcp-server-azure-devops-v0.1.38...mcp-server-azure-devops-v0.1.39) (2025-06-03)
+
+
+### Features
+
+* add listWikiPages functionality to Azure DevOps wiki client ([bb9ddc0](https://github.com/Tiberriver256/mcp-server-azure-devops/commit/bb9ddc077e80be0caeda106a7e75dc336a62c9ae))
+* implement create_wiki_page feature for Azure DevOps wiki API integration ([#225](https://github.com/Tiberriver256/mcp-server-azure-devops/issues/225)) ([7e3294d](https://github.com/Tiberriver256/mcp-server-azure-devops/commit/7e3294d1f1b6e82d5ca34cf86f3eaa51579dad02))
+
+
+### Bug Fixes
+
+* enhanced the get-pull-request-comments tool to include path and line number ([f6017e5](https://github.com/Tiberriver256/mcp-server-azure-devops/commit/f6017e5dd352b63b189e761c9cf27d103dd24b9d))
+* remove uuid() validator to resolve unknown format error ([b251252](https://github.com/Tiberriver256/mcp-server-azure-devops/commit/b251252c7c455ee11d8076380b70a546ebf40a6e))
+
+## [0.1.38](https://github.com/Tiberriver256/mcp-server-azure-devops/compare/mcp-server-azure-devops-v0.1.37...mcp-server-azure-devops-v0.1.38) (2025-05-25)
+
+
+### Bug Fixes
+
+* improve org name extraction from url ([496abc7](https://github.com/Tiberriver256/mcp-server-azure-devops/commit/496abc7a9c5fd0867cf8484f8c33c47a3cc42edf))
+
 ## [0.1.37](https://github.com/Tiberriver256/mcp-server-azure-devops/compare/mcp-server-azure-devops-v0.1.36...mcp-server-azure-devops-v0.1.37) (2025-05-14)
 
 

@@ -1,10 +1,41 @@
 import {
   GitPullRequest,
   Comment,
+  GitPullRequestCommentThread,
+  CommentPosition,
 } from 'azure-devops-node-api/interfaces/GitInterfaces';
 
 export type PullRequest = GitPullRequest;
 export type PullRequestComment = Comment;
+
+/**
+ * Extended Comment type with string enum values
+ */
+export interface CommentWithStringEnums extends Omit<Comment, 'commentType'> {
+  commentType?: string;
+  filePath?: string;
+  leftFileStart?: CommentPosition;
+  leftFileEnd?: CommentPosition;
+  rightFileStart?: CommentPosition;
+  rightFileEnd?: CommentPosition;
+}
+
+/**
+ * Extended GitPullRequestCommentThread type with string enum values
+ */
+export interface CommentThreadWithStringEnums
+  extends Omit<GitPullRequestCommentThread, 'status' | 'comments'> {
+  status?: string;
+  comments?: CommentWithStringEnums[];
+}
+
+/**
+ * Response type for add comment operations
+ */
+export interface AddCommentResponse {
+  comment: CommentWithStringEnums;
+  thread?: CommentThreadWithStringEnums;
+}
 
 /**
  * Options for creating a pull request
@@ -17,7 +48,7 @@ export interface CreatePullRequestOptions {
   reviewers?: string[];
   isDraft?: boolean;
   workItemRefs?: number[];
-  additionalProperties?: Record<string, any>;
+  additionalProperties?: Record<string, string | number | boolean>;
 }
 
 /**
@@ -62,7 +93,14 @@ export interface AddPullRequestCommentOptions {
   filePath?: string;
   lineNumber?: number;
   // Additional options
-  status?: 'active' | 'fixed' | 'wontFix' | 'closed' | 'pending';
+  status?:
+    | 'active'
+    | 'fixed'
+    | 'wontFix'
+    | 'closed'
+    | 'pending'
+    | 'byDesign'
+    | 'unknown';
 }
 
 /**
@@ -80,5 +118,5 @@ export interface UpdatePullRequestOptions {
   removeWorkItemIds?: number[];
   addReviewers?: string[]; // Array of reviewer identifiers (email or ID)
   removeReviewers?: string[]; // Array of reviewer identifiers (email or ID)
-  additionalProperties?: Record<string, any>;
+  additionalProperties?: Record<string, string | number | boolean>;
 }

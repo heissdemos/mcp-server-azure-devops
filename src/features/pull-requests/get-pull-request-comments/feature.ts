@@ -1,7 +1,14 @@
 import { WebApi } from 'azure-devops-node-api';
 import { AzureDevOpsError } from '../../../shared/errors';
-import { GetPullRequestCommentsOptions } from '../types';
+import {
+  GetPullRequestCommentsOptions,
+  CommentThreadWithStringEnums,
+} from '../types';
 import { GitPullRequestCommentThread } from 'azure-devops-node-api/interfaces/GitInterfaces';
+import {
+  transformCommentThreadStatus,
+  transformCommentType,
+} from '../../../shared/enums';
 
 /**
  * Get comments from a pull request
@@ -19,7 +26,7 @@ export async function getPullRequestComments(
   repositoryId: string,
   pullRequestId: number,
   options: GetPullRequestCommentsOptions,
-): Promise<GitPullRequestCommentThread[]> {
+): Promise<CommentThreadWithStringEnums[]> {
   try {
     const gitApi = await connection.getGitApi();
 
@@ -31,7 +38,7 @@ export async function getPullRequestComments(
         options.threadId,
         projectId,
       );
-      return thread ? [thread] : [];
+      return thread ? [transformThread(thread)] : [];
     } else {
       // Otherwise, get all threads
       const threads = await gitApi.getThreads(
@@ -42,11 +49,12 @@ export async function getPullRequestComments(
         options.includeDeleted ? 1 : undefined, // Convert boolean to number (1 = include deleted)
       );
 
-      // Return all threads (with pagination if top is specified)
-      if (options.top && threads) {
-        return threads.slice(0, options.top);
+      // Transform and return all threads (with pagination if top is specified)
+      const transformedThreads = (threads || []).map(transformThread);
+      if (options.top) {
+        return transformedThreads.slice(0, options.top);
       }
-      return threads || [];
+      return transformedThreads;
     }
   } catch (error) {
     if (error instanceof AzureDevOpsError) {
@@ -56,4 +64,59 @@ export async function getPullRequestComments(
       `Failed to get pull request comments: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
+}
+
+/**
+ * Transform a comment thread to include filePath and lineNumber fields
+ * @param thread The original comment thread
+ * @returns Transformed comment thread with additional fields
+ */
+function transformThread(
+  thread: GitPullRequestCommentThread,
+): CommentThreadWithStringEnums {
+  if (!thread.comments) {
+    return {
+      ...thread,
+      status: transformCommentThreadStatus(thread.status),
+      comments: undefined,
+    };
+  }
+
+  // Get file path and positions from thread context
+  const filePath = thread.threadContext?.filePath;
+  const leftFileStart =
+    thread.threadContext && 'leftFileStart' in thread.threadContext
+      ? thread.threadContext.leftFileStart
+      : undefined;
+  const leftFileEnd =
+    thread.threadContext && 'leftFileEnd' in thread.threadContext
+      ? thread.threadContext.leftFileEnd
+      : undefined;
+  const rightFileStart =
+    thread.threadContext && 'rightFileStart' in thread.threadContext
+      ? thread.threadContext.rightFileStart
+      : undefined;
+  const rightFileEnd =
+    thread.threadContext && 'rightFileEnd' in thread.threadContext
+      ? thread.threadContext.rightFileEnd
+      : undefined;
+
+  // Transform each comment to include the new fields and string enums
+  const transformedComments = thread.comments.map((comment) => ({
+    ...comment,
+    filePath,
+    leftFileStart,
+    leftFileEnd,
+    rightFileStart,
+    rightFileEnd,
+    // Transform enum values to strings
+    commentType: transformCommentType(comment.commentType),
+  }));
+
+  return {
+    ...thread,
+    comments: transformedComments,
+    // Transform thread status to string
+    status: transformCommentThreadStatus(thread.status),
+  };
 }

@@ -2,6 +2,8 @@ export { getWikis, GetWikisSchema } from './get-wikis';
 export { getWikiPage, GetWikiPageSchema } from './get-wiki-page';
 export { createWiki, CreateWikiSchema, WikiType } from './create-wiki';
 export { updateWikiPage, UpdateWikiPageSchema } from './update-wiki-page';
+export { listWikiPages, ListWikiPagesSchema } from './list-wiki-pages';
+export { createWikiPage, CreateWikiPageSchema } from './create-wiki-page';
 
 // Export tool definitions
 export * from './tool-definitions';
@@ -19,10 +21,14 @@ import {
   GetWikiPageSchema,
   CreateWikiSchema,
   UpdateWikiPageSchema,
+  ListWikiPagesSchema,
+  CreateWikiPageSchema,
   getWikis,
   getWikiPage,
   createWiki,
   updateWikiPage,
+  listWikiPages,
+  createWikiPage,
 } from './';
 
 /**
@@ -37,6 +43,8 @@ export const isWikisRequest: RequestIdentifier = (
     'get_wiki_page',
     'create_wiki',
     'update_wiki_page',
+    'list_wiki_pages',
+    'create_wiki_page',
   ].includes(toolName);
 };
 
@@ -87,6 +95,31 @@ export const handleWikisRequest: RequestHandler = async (
     case 'update_wiki_page': {
       const args = UpdateWikiPageSchema.parse(request.params.arguments);
       const result = await updateWikiPage({
+        organizationId: args.organizationId ?? defaultOrg,
+        projectId: args.projectId ?? defaultProject,
+        wikiId: args.wikiId,
+        pagePath: args.pagePath,
+        content: args.content,
+        comment: args.comment,
+      });
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      };
+    }
+    case 'list_wiki_pages': {
+      const args = ListWikiPagesSchema.parse(request.params.arguments);
+      const result = await listWikiPages({
+        organizationId: args.organizationId ?? defaultOrg,
+        projectId: args.projectId ?? defaultProject,
+        wikiId: args.wikiId,
+      });
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      };
+    }
+    case 'create_wiki_page': {
+      const args = CreateWikiPageSchema.parse(request.params.arguments);
+      const result = await createWikiPage({
         organizationId: args.organizationId ?? defaultOrg,
         projectId: args.projectId ?? defaultProject,
         wikiId: args.wikiId,
