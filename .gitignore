@@ -34,7 +34,13 @@ coverage/
 
 # Logs
 logs/
-*.log 
+*.log
 
 # Claude Code
 CLAUDE.md
+
+# Snyk Security Extension - AI Rules (auto-generated)
+.cursor/rules/snyk_rules.mdc
+
+# Patches
+diffs/
