@@ -59,6 +59,20 @@ When adding a new feature or tool:
 3. Update the feature's `index.ts` to export your functions and add them to the request handlers
 4. No changes to server.ts should be needed!
 
+## Local Setup (run the server from source)
+
+```bash
+npm ci
+cp .env.example .env   # then edit values
+
+# option A: run compiled output (matches what gets published)
+npm run build
+npm start
+
+# option B: dev mode (auto-reload)
+npm run dev
+```
+
 ## Testing
 
 ### Unit Tests
@@ -83,7 +97,7 @@ Integration tests require a connection to a real Azure DevOps instance. To run t
 
 2. Run the integration tests:
    ```bash
-   npm run test:integration
+   npm run test:int
    ```
 
 ### CI Environment
@@ -185,6 +199,10 @@ The workflow is automatically triggered on pushes to the `main` branch and follo
 4. Merge the Release PR to trigger the actual release
 
 This automation ensures consistent and well-documented releases that accurately reflect the changes made since the previous release.
+
+### Troubleshooting Releases
+
+If you encounter issues with the release process (e.g., failed npm publish, need to re-release), see the [Release Troubleshooting Guide](docs/release-troubleshooting.md) for solutions.
 
 ## License
 

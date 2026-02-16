@@ -28,22 +28,7 @@ export async function listPullRequests(
 }> {
   try {
     const gitApi = await connection.getGitApi();
-
-    if (options.pullRequestId !== undefined) {
-      const pullRequest = await gitApi.getPullRequest(
-        repositoryId,
-        options.pullRequestId,
-        projectId,
-      );
-
-      const value = pullRequest ? [pullRequest] : [];
-      return {
-        count: value.length,
-        value,
-        hasMoreResults: false,
-        warning: undefined,
-      };
-    }
+    const project = projectId || undefined;
 
     // Create search criteria
     const searchCriteria: GitPullRequestSearchCriteria = {};
@@ -91,7 +76,7 @@ export async function listPullRequests(
     const pullRequests = await gitApi.getPullRequests(
       repositoryId,
       searchCriteria,
-      projectId,
+      project,
       undefined, // maxCommentLength
       skip,
       top,

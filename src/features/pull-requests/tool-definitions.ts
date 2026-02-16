@@ -2,6 +2,7 @@ import { zodToJsonSchema } from 'zod-to-json-schema';
 import { ToolDefinition } from '../../shared/types/tool-definition';
 import {
   CreatePullRequestSchema,
+  GetPullRequestSchema,
   ListPullRequestsSchema,
   GetPullRequestCommentsSchema,
   AddPullRequestCommentSchema,
@@ -21,6 +22,12 @@ export const pullRequestsTools: ToolDefinition[] = [
     inputSchema: zodToJsonSchema(CreatePullRequestSchema),
   },
   {
+    name: 'get_pull_request',
+    description:
+      'Get a pull request by ID (no repositoryId required; best for Azure DevOps Server where PR IDs are project-scoped)',
+    inputSchema: zodToJsonSchema(GetPullRequestSchema),
+  },
+  {
     name: 'list_pull_requests',
     description: 'List pull requests in a repository',
     inputSchema: zodToJsonSchema(ListPullRequestsSchema),
@@ -33,7 +40,7 @@ export const pullRequestsTools: ToolDefinition[] = [
   {
     name: 'add_pull_request_comment',
     description:
-      'Add a comment to a pull request (reply to existing comments or create new threads)',
+      'Add a comment to a pull request (repositoryId optional; derived from pullRequestId when omitted)',
     inputSchema: zodToJsonSchema(AddPullRequestCommentSchema),
   },
   {

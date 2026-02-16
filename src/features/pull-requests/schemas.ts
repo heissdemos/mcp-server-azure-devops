@@ -48,6 +48,18 @@ export const CreatePullRequestSchema = z.object({
 });
 
 /**
+ * Schema for getting a pull request by ID (no repositoryId required)
+ */
+export const GetPullRequestSchema = z.object({
+  projectId: z.string().describe('The ID or name of the project'),
+  organizationId: z
+    .string()
+    .optional()
+    .describe(`The ID or name of the organization (Default: ${defaultOrg})`),
+  pullRequestId: z.number().describe('The ID of the pull request'),
+});
+
+/**
  * Schema for listing pull requests
  */
 export const ListPullRequestsSchema = z.object({
@@ -82,10 +94,6 @@ export const ListPullRequestsSchema = z.object({
     .number()
     .optional()
     .describe('Number of pull requests to skip for pagination'),
-  pullRequestId: z
-    .number()
-    .optional()
-    .describe('If provided, return only the matching pull request ID'),
 });
 
 /**
@@ -129,7 +137,12 @@ export const AddPullRequestCommentSchema = z
       .string()
       .optional()
       .describe(`The ID or name of the organization (Default: ${defaultOrg})`),
-    repositoryId: z.string().describe('The ID or name of the repository'),
+    repositoryId: z
+      .string()
+      .optional()
+      .describe(
+        'The ID or name of the repository (optional; derived from pullRequestId when omitted)',
+      ),
     pullRequestId: z.number().describe('The ID of the pull request'),
     content: z.string().describe('The content of the comment in markdown'),
     threadId: z

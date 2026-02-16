@@ -6,6 +6,10 @@ import {
   AzureDevOpsAuthenticationError,
   AzureDevOpsValidationError,
 } from '../../../shared/errors';
+import {
+  isAzureDevOpsServicesUrl,
+  resolveAzureDevOpsBaseUrls,
+} from '../../../shared/azure-devops-url';
 import { UserProfile } from '../types';
 
 /**
@@ -19,8 +23,20 @@ import { UserProfile } from '../types';
  */
 export async function getMe(connection: WebApi): Promise<UserProfile> {
   try {
-    // Extract organization from the connection URL
-    const { organization } = extractOrgFromUrl(connection.serverUrl);
+    if (!isAzureDevOpsServicesUrl(connection.serverUrl)) {
+      throw new AzureDevOpsValidationError(
+        'The get_me profile endpoint is only available for Azure DevOps Services',
+      );
+    }
+
+    const baseUrls = resolveAzureDevOpsBaseUrls(connection.serverUrl);
+    const organization = baseUrls.organization;
+
+    if (!organization) {
+      throw new AzureDevOpsValidationError(
+        'Could not extract organization from Azure DevOps Services URL',
+      );
+    }
 
     // Get the authorization header
     const authHeader = await getAuthorizationHeader();
@@ -89,39 +105,6 @@ export async function getMe(connection: WebApi): Promise<UserProfile> {
       `Failed to get user information: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
-}
-
-/**
- * Extract organization from the Azure DevOps URL
- *
- * @param url The Azure DevOps URL
- * @returns The organization
- */
-function extractOrgFromUrl(url: string): { organization: string } {
-  // First try modern dev.azure.com format
-  let match = url.match(/https?:\/\/dev\.azure\.com\/([^/]+)/);
-
-  // If not found, try legacy visualstudio.com format
-  if (!match) {
-    match = url.match(/https?:\/\/([^.]+)\.visualstudio\.com/);
-  }
-
-  // Fallback: capture the first path segment for any URL
-  if (!match) {
-    match = url.match(/https?:\/\/[^/]+\/([^/]+)/);
-  }
-
-  const organization = match ? match[1] : '';
-
-  if (!organization) {
-    throw new AzureDevOpsValidationError(
-      'Could not extract organization from URL',
-    );
-  }
-
-  return {
-    organization,
-  };
 }
 
 /**

@@ -44,3 +44,7 @@ CLAUDE.md
 
 # Patches
 diffs/
+
+# Agent harness artifacts
+.codex/
+.agents/

@@ -65,7 +65,6 @@ export interface ListPullRequestsOptions {
   targetRefName?: string;
   top?: number;
   skip?: number;
-  pullRequestId?: number;
 }
 
 /**
@@ -85,7 +84,7 @@ export interface GetPullRequestCommentsOptions {
  */
 export interface AddPullRequestCommentOptions {
   projectId: string;
-  repositoryId: string;
+  repositoryId?: string;
   pullRequestId: number;
   content: string;
   // For responding to an existing comment
