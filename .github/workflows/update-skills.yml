@@ -25,23 +25,20 @@ jobs:
         run: |
           # Remove old skill-creator
           rm -rf .github/skills/skill-creator
-          
-          # Copy new skill-creator
+
+          # Copy new skill-creator (skills/ is a subdirectory of the anthropics/skills repo)
           mkdir -p .github/skills
-          cp -r /tmp/skills/skill-creator .github/skills/
+          cp -r /tmp/skills/skills/skill-creator .github/skills/
 
       - name: Update copilot-instructions.md
         run: |
-          # Extract description from SKILL.md frontmatter
           DESCRIPTION=$(sed -n '/^description:/,/^[a-z-]*:/p' .github/skills/skill-creator/SKILL.md | grep '^description:' | sed 's/^description: //' | sed 's/^"//' | sed 's/"$//')
-          
-          # If description spans multiple lines, get the full description
+
           if [ -z "$DESCRIPTION" ]; then
-            DESCRIPTION=$(awk '/^description:/{flag=1; sub(/^description: /, ""); print; next} flag{if(/^[a-z-]*:/){exit}; print}' .github/skills/skill-creator/SKILL.md | tr '\n' ' ' | sed 's/  */ /g')
+            DESCRIPTION=$(awk '/^description:/{flag=1; sub(/^description: /, ""); print; next} flag{if(/^[a-z-]*:/){exit}; print}' .github/skills/skill-creator/SKILL.md | tr '
+' ' ' | sed 's/  */ /g')
           fi
-          
-          # Update the table in copilot-instructions.md
-          # This preserves the header and updates the skill-creator row
+
           sed -i "/^| skill-creator |/c\| skill-creator | ${DESCRIPTION} | [.github/skills/skill-creator/SKILL.md](.github/skills/skill-creator/SKILL.md) |" copilot-instructions.md
 
       - name: Check for changes
@@ -58,11 +55,11 @@ jobs:
           title: 'Update skill-creator skill'
           body: |
             This PR updates the skill-creator skill from the [anthropics/skills](https://github.com/anthropics/skills) repository.
-            
+
             **Changes:**
             - Updated skill-creator skill files
             - Updated copilot-instructions.md metadata table
-            
+
             This is an automated update triggered by the update-skills workflow.
           branch: update-skills
           delete-branch: true
